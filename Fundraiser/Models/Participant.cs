@@ -12,6 +12,8 @@ namespace Fundraiser.Models
         [DisplayName("Paddle")]
         public int ID { get; set; }
         public string Name { get; set; }
+        [DisplayName("Email Address")]
+        public string EmailAddress {get; set;}
         [DisplayName("Total Contributed")]
         public decimal TotalContributed { get; set; }
         public bool Paid { get; set; }

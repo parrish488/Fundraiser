@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 
 namespace Fundraiser.Controllers
@@ -62,6 +64,9 @@ namespace Fundraiser.Controllers
             {
                 _context.Add(contribution);
                 await _context.SaveChangesAsync();
+
+                SendNotification(contribution.ParticipantID);
+
                 return RedirectToAction(nameof(Create));
             }
             ViewData["ParticipantID"] = new SelectList(_context.Participants, "ID", "ID", contribution.ParticipantID);
@@ -115,6 +120,9 @@ namespace Fundraiser.Controllers
                         throw;
                     }
                 }
+
+                SendNotification(contribution.ParticipantID);
+
                 return RedirectToAction(nameof(Index));
             }
             ViewData["ParticipantID"] = new SelectList(_context.Participants, "ID", "ID", contribution.ParticipantID);
@@ -148,12 +156,51 @@ namespace Fundraiser.Controllers
             var contribution = await _context.Contributions.SingleOrDefaultAsync(m => m.ID == id);
             _context.Contributions.Remove(contribution);
             await _context.SaveChangesAsync();
+
+            SendNotification(contribution.ParticipantID);
+
             return RedirectToAction(nameof(Index));
         }
 
         private bool ContributionExists(int id)
         {
             return _context.Contributions.Any(e => e.ID == id);
+        }
+
+        private async void SendNotification(int participantID)
+        {
+            var participant = await _context.Participants
+            .Include(p => p.Contributions)
+            .SingleOrDefaultAsync(m => m.ID == participantID);
+
+            _context.Contributions.Where(c => c.ParticipantID == participantID).ToList().ForEach(x => participant.TotalContributed += x.Amount);
+
+            if (participant != null && !string.IsNullOrEmpty(participant.EmailAddress))
+            {
+                var smtpClient = new SmtpClient
+                {
+                    Host = "smtp.gmail.com", // set your SMTP server name here
+                    Port = 587, // Port 
+                    EnableSsl = true,
+                    Credentials = new NetworkCredential("jasonparrish8@gmail.com", "Jap080312")
+                };
+
+                string body = "You've contributed " + participant.TotalContributed.ToString("C2") + " so far!  Here's your contributions: \n\n";
+
+                foreach (Contribution contribution in participant.Contributions)
+                {
+                    body += contribution.Description + ", " + contribution.Amount.ToString("C2") + "\n";
+                }
+
+                using (var message = new MailMessage("jasonparrish8@gmail.com", participant.EmailAddress)
+                {
+                    Subject = "Youth Auction Contribution Update",
+                    Body = body
+                })
+                {
+                    await smtpClient.SendMailAsync(message);
+                }
+            }
         }
     }
 }

@@ -1,0 +1,27 @@
+@{
+    ViewData["Title"] = "Administration";
+}
+
+<h1 class="text-center">Fundraiser Administration</h1>
+<hr/>
+<div class="col-md-6 text-center">
+    <h2>Participants</h2>
+    <div class="row">
+        <a asp-controller="Participants" asp-action="Create">Create Participant</a>
+    </div>
+    <div class="row">
+        <a asp-controller="Participants" asp-action="Index">List Participants</a>
+    </div>
+    <div class="row">
+        <a asp-controller="Participants" asp-action="Complete">Send Final Email</a>
+    </div>
+</div>
+<div class="col-md-6 text-center">
+    <h2>Contributions</h2>
+    <div class="row">
+        <a asp-controller="Contributions" asp-action="Create">Create Contribution</a>
+    </div>
+    <div class="row">
+        <a asp-controller="Contributions" asp-action="Index">List Contributions</a>
+    </div>
+</div>

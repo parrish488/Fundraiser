@@ -4,60 +4,74 @@
     ViewData["Title"] = "Details";
 }
 
-<h2>Details</h2>
+<h2>Participant Details</h2>
 
 <div>
-    <h4>Participant</h4>
     <hr />
-    <div class="col-md-6">
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(model => model.ID)
-            </dt>
-            <dd>
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <h4 class="text-center">Paddle</h4>
+            <hr/>
+            <label style="font-size:100px">
                 @Html.DisplayFor(model => model.ID)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.Name)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Name)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.TotalContributed)
-            </dt>
-            <dd>
-                $@Html.DisplayFor(model => model.TotalContributed)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(model => model.Paid)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Paid)
-            </dd>
-        </dl>
-    </div>
-    <div class="col-md-6">
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Description</th>
-                    <th>Amount</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (Contribution c in Model.Contributions)
-                {
+            </label>
+        </div>
+        <div class="col-md-4">
+            <h4 class="text-center">Information</h4>
+            <hr/>
+            <dl class="dl-horizontal">
+                <dt>
+                    @Html.DisplayNameFor(model => model.Name)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Name)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.EmailAddress)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.EmailAddress)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.TotalContributed)
+                </dt>
+                <dd>
+                    $@Html.DisplayFor(model => model.TotalContributed)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.Paid)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.Paid)
+                </dd>
+            </dl>
+        </div>
+        <div class="col-md-4">
+            <h4 class="text-center">Contributions</h4>
+            <hr/>
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td>@c.Description</td>
-                        <td>$@c.Amount</td>
+                        <th>Description</th>
+                        <th>Amount</th>
                     </tr>
-                }
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @foreach (Contribution c in Model.Contributions)
+                    {
+                        <tr>
+                            <td>@c.Description</td>
+                            <td>@c.Amount.ToString("C2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+<hr/>
 <div>
     <a asp-action="Edit" asp-route-id="@Model.ID">Edit</a> |
+    <a asp-action="Create">Create Another</a> |
     <a asp-action="Index">Back to List</a>
 </div>

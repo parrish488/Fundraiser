@@ -24,7 +24,7 @@ namespace Fundraiser
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<FundraiserContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                    options.UseSqlite("Data Source=FundraiserContext.db"));
 
             services.AddMvc();
         }

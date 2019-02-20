@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Fundraiser.Data;
 using Fundraiser.Models;
+using System.Net.Mail;
+using System.Net;
 
 namespace Fundraiser.Controllers
 {
@@ -58,13 +60,13 @@ namespace Fundraiser.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ID,Name")] Participant participant)
+        public async Task<IActionResult> Create([Bind("ID,Name,EmailAddress")] Participant participant)
         {
             if (ModelState.IsValid)
             {
                 _context.Add(participant);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = participant.ID });
             }
             return View(participant);
         }
@@ -90,7 +92,7 @@ namespace Fundraiser.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,Paid")] Participant participant)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,EmailAddress,Paid")] Participant participant)
         {
             if (id != participant.ID)
             {
@@ -115,7 +117,7 @@ namespace Fundraiser.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = participant.ID });
             }
             return View(participant);
         }
@@ -146,6 +148,46 @@ namespace Fundraiser.Controllers
             var participant = await _context.Participants.SingleOrDefaultAsync(m => m.ID == id);
             _context.Participants.Remove(participant);
             await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        public async Task<IActionResult> Complete()
+        {
+            foreach (Participant participant in _context.Participants)
+            {
+                _context.Contributions.Where(c => c.ParticipantID == participant.ID).ToList().ForEach(x => participant.TotalContributed += x.Amount);
+
+                // If they exist, have an email, have made contributions, and not paid yet.
+                if (participant != null && !string.IsNullOrEmpty(participant.EmailAddress) && participant.Contributions != null && participant.Contributions.Count > 0 && !participant.Paid)
+                {
+                    var smtpClient = new SmtpClient
+                    {
+                        Host = "smtp.gmail.com", // set your SMTP server name here
+                        Port = 587, // Port 
+                        EnableSsl = true,
+                        Credentials = new NetworkCredential("jasonparrish8@gmail.com", "Jap080312")
+                    };
+
+                    string body = "Thanks for participating in the Ruston View 2nd Ward Youth Auction!  You contributed " + participant.TotalContributed.ToString("C2") + "!  Here's your contributions: \n\n";
+
+                    foreach (Contribution contribution in participant.Contributions)
+                    {
+                        body += contribution.Description + ", " + contribution.Amount.ToString("C2") + "\n";
+                    }
+
+                    body += "\nPlease see the Ward Clerk for instructions on how to complete your donation.";
+
+                    using (var message = new MailMessage("jasonparrish8@gmail.com", participant.EmailAddress)
+                    {
+                        Subject = "Youth Auction Contribution Update",
+                        Body = body
+                    })
+                    {
+                        await smtpClient.SendMailAsync(message);
+                    }
+                }
+            }
+
             return RedirectToAction(nameof(Index));
         }
 
