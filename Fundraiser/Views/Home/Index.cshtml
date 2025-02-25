@@ -11,16 +11,16 @@
              role="progressbar" 
              aria-valuenow="@Model.TotalRaised" 
              aria-valuemin="0" 
-             aria-valuemax="3000" 
-             style="width: @((Model.TotalRaised/3000)*100)%; font-size: 80px; line-height:150px; text-align:center;">
-            <span>@((int)((Model.TotalRaised / 3000) * 100))%</span>
+             aria-valuemax="5000" 
+             style="width: @((Model.TotalRaised/5000)*100)%; font-size: 80px; line-height:150px; text-align:center;">
+            <span>@((int)((Model.TotalRaised / 5000) * 100))%</span>
         </div>
     </div>
     <div class="col-md-6 col-md-offset-3">
         <hr />
         <h1>Current Total Raised: @Model.TotalRaised.ToString("C2")</h1>
         <hr />
-        <h1>Goal: $3000</h1>
+        <h1>Goal: $5000</h1>
     </div>
 </div>
 
